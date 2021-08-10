@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>immomap</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
+          integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"
+            integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
+            crossorigin=""></script>
+
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="bulma-0.7.5/css/bulma.css" />
+    <link rel="stylesheet" type="text/css" href="application.css" />
+  </head>
+  <body>
+    <section class="section">
+
+        <div class="columns">
+          <div id="left" class="column is-one-quarter">left</div>
+          <div id="map" class="column is-half">map</div>
+          <div id="right" class="column is-one-quarter">
+            <div id="filter">
+              <table>
+                <tr>
+                  <td>type</td>
+                  <td>
+                    <select id='filter_type' onchange="reloadMarkers();">
+                      <option value="" selected="selected">Alle</option>
+                      <option>flats</option>
+                      <option>buildings</option>
+                      <option>properties</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>sub_type</td>
+                  <td>
+                    <select id='filter_sub_type' onchange="reloadMarkers();">
+                      <option value="" selected="selected">Alle</option>
+                      <option>Bauernhaus</option>
+                      <option>Baugrundstück</option>
+                      <option>Bungalow</option>
+                      <option>Dachgeschosswohnung</option>
+                      <option>Doppelhaushälfte</option>
+                      <option>Einfamilienhaus freistehend</option>
+                      <option>Erdgeschosswohnung</option>
+                      <option>Etagenwohnung</option>
+                      <option>Garten</option>
+                      <option>Hochparterre</option>
+                      <option>Land-/Forstwirtschaft</option>
+                      <option>Loft</option>
+                      <option>Maisonette</option>
+                      <option>Mehrfamilienhaus</option>
+                      <option>Penthouse</option>
+                      <option>Reihenhaus</option>
+                      <option>Sonstige</option>
+                      <option>Souterrain</option>
+                      <option>Terrassenwohnung</option>
+                      <option>Villa</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>min_price</td>
+                  <td>
+                    <input type="text" value="" id="filter_min_price" onchange="reloadMarkers();" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>max_price</td>
+                  <td>
+                    <input type="text" value="" id="filter_max_price" onchange="reloadMarkers();" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>max_price_qm_wohnflaeche</td>
+                  <td>
+                    <input type="text" value="" id="filter_max_price_qm_wohnflaeche" onchange="reloadMarkers();" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>min_zimmer</td>
+                  <td>
+                    <input type="text" value="" id="filter_min_zimmer" onchange="reloadMarkers();" />
+                  </td>
+                </tr>
+              </table>
+
+              <br/>
+              <a href="javascript:reloadMarkers();">Apply filters ...</a>
+            </div>
+
+            <div id="ad"></div>
+          </div>
+        </div>
+    </section>
+
+
+
+
+    <script type="text/javascript">
+      mapAjaxRequest = new XMLHttpRequest();
+      adAjaxRequest = new XMLHttpRequest();
+      markers = [];
+
+      var greyMarkerIcon = L.icon({
+        iconUrl: 'marker-grey.png',
+        iconSize: [25, 40],
+        iconAnchor: [12, 40],
+        popupAnchor: [-1, -1]
+      });
+
+      var blueMarkerIcon = L.icon({
+        iconUrl: 'marker-blue.png',
+        iconSize: [25, 40],
+        iconAnchor: [12, 40],
+        popupAnchor: [-1, -1]
+      });
+
+      var sephiaMarkerIcon = L.icon({
+        iconUrl: 'marker-sephia.png',
+        iconSize: [25, 40],
+        iconAnchor: [12, 40],
+        popupAnchor: [-1, -1]
+      });
+
+      function requestPlots(e) {
+        var bounds=map.getBounds();
+        var minll=bounds.getSouthWest();
+        var maxll=bounds.getNorthEast();
+        var msg='ads?lon1='+minll.lng+'&lat1='+minll.lat+'&lon2='+maxll.lng+'&lat2='+maxll.lat;
+        msg = msg + '&type=' + document.getElementById("filter_type").value;
+        msg = msg + '&sub_type=' + document.getElementById("filter_sub_type").value;
+        msg = msg + '&min_price=' + document.getElementById("filter_min_price").value;
+        msg = msg + '&max_price=' + document.getElementById("filter_max_price").value;
+        msg = msg + '&max_price_qm_wohnflaeche=' + document.getElementById("filter_max_price_qm_wohnflaeche").value;
+        msg = msg + '&min_zimmer=' + document.getElementById("filter_min_zimmer").value;
+
+        mapAjaxRequest.onreadystatechange = renderPlots;
+        mapAjaxRequest.open('GET', msg, true);
+        mapAjaxRequest.send(null);
+      }
+
+      function renderPlots() {
+        if (mapAjaxRequest.readyState!=4) return;
+        if (mapAjaxRequest.status!=200) return;
+        result = eval("(" + mapAjaxRequest.responseText + ")");
+
+        //remove markers
+        for(i=0;i<markers.length;i++) {
+          markers[i].remove();
+        }
+        markers = [];
+
+        //add markers
+        for(i=0;i<result.length;i++) {
+          e = result[i];
+
+          if(e.marked) {
+            icon = sephiaMarkerIcon;
+          } else if(e.new) {
+            icon = blueMarkerIcon
+          } else {
+            icon = greyMarkerIcon;
+          }
+
+          marker = L.marker([e.lat, e.lon], {icon: icon});
+          marker.data = e;
+          marker.addTo(map);
+          marker.on('click', selectMarker);
+          markers.push(marker);
+        }
+      }
+
+      function selectMarker(e) {
+        loadAd(e.target.data.adid);
+      }
+
+      function loadAd(adid) {
+        adAjaxRequest.onreadystatechange = renderAd;
+        adAjaxRequest.open('GET', 'ads/' + adid + '.html', true);
+        adAjaxRequest.send(null);
+      }
+
+      function clearAd() {
+        node = document.getElementById("ad");
+        while (node.firstChild) {
+          node.removeChild(node.firstChild);
+        }
+      }
+
+      function renderAd() {
+        if (adAjaxRequest.readyState!=4) return;
+        if (adAjaxRequest.status!=200) return;
+        clearAd();
+
+        //add new content
+        node = document.getElementById("ad");
+        node.innerHTML = adAjaxRequest.responseText
+      }
+
+      function ignoreAd(adid) {
+        postAndReload(adid, 'ignore', reloadMarkers);
+      }
+
+      function markAd(adid) {
+        postAndReload(adid, 'mark', reloadAdAndMarkers);
+      }
+
+      function unmarkAd(adid) {
+        postAndReload(adid, 'unmark', reloadAdAndMarkers);
+      }
+
+      function postAndReload(adid, action, callbackFunction) {
+        localRequest = new XMLHttpRequest();
+        localRequest.onreadystatechange = callbackFunction;
+        localRequest.open('POST', 'ads/' + adid + '/' + action, true);
+        localRequest.send(null);
+      }
+
+      function reloadMarkers() {
+        clearAd();
+        map.fire('moveend');
+      }
+
+      function reloadAdAndMarkers() {
+        loadAd(document.getElementById('adid').value);
+        map.fire('moveend');
+      }
+
+      // set up the map
+      var map = new L.Map('map', {
+                            center: [52.516667, 13.388889],
+                            zoom: 14
+                          });
+
+      // create the tile layer with correct attribution
+      var osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      var osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
+      var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 15, attribution: osmAttrib});
+      map.addLayer(osm);
+
+      // trigger loading of markers
+      requestPlots(null);
+      map.on('moveend', requestPlots);
+
+
+
+    </script>
+  </body>
+</html>

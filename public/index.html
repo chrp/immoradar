@@ -1,0 +1,419 @@
+<html>
+  <head>
+    <title>immomap</title>
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
+          integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"
+            integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
+            crossorigin=""></script>
+    <style type="text/css">
+      body {
+        font-family: sans-serif;
+      }
+
+      th {
+        text-align: left;
+      }
+
+      .highlight {
+        color: red;
+      }
+
+      .dimmed {
+        color: grey;
+      }
+
+      #map {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        bottom: 0px;
+        width: 70%;
+      }
+      #ad {
+        position: absolute;
+        top: 50%;
+        left: 70%;
+        bottom: 0px;
+        width: 30%;
+        padding: 10px;
+      }
+      #filter {
+        position: absolute;
+        top: 0px;
+        left: 70%;
+        bottom: 50%;
+        width: 30%;
+        background-color: #eee;
+        padding: 10px;
+      }
+    </style>
+
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <div id="filter">
+      <table>
+        <tr>
+          <td>Kategorie</td>
+          <td colspan="4">
+            <select id='filter_type' onchange="reloadMarkers();">
+              <option value="" selected="selected">Alle</option>
+              <option>Häuser zum Kauf</option>
+              <option>Mietwohnungen</option>
+              <option value="Umzug%20%26%20Transport">Umzug & Transport</option>
+              <option value="Ferien-%20%26%20Auslandsimmobilien">Ferien- & Auslandsimmobilien</option>
+              <option value="Grundstücke%20%26%20Gärten">Grundstücke & Gärten</option>
+              <option>Eigentumswohnungen</option>
+
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Unterkategorie</td>
+          <td colspan="4">
+            <select id='filter_sub_type' onchange="reloadMarkers();">
+              <option value="" selected="selected">Alle</option>
+              <option>Andere Haustypen</option>
+              <option>Bauernhaus</option>
+              <option>Baugrundstück</option>
+              <option>Bungalow</option>
+              <option>Dachgeschosswohnung</option>
+              <option>Doppelhaushälfte</option>
+              <option>Einfamilienhaus</option>
+              <option>Einfamilienhaus freistehend</option>
+              <option>Erdgeschosswohnung</option>
+              <option>Etagenwohnung</option>
+              <option>Garten</option>
+              <option>Hochparterre</option>
+              <option>Land</option>
+              <option>Loft</option>
+              <option>Maisonette</option>
+              <option>Mehrfamilienhaus</option>
+              <option>Penthouse</option>
+              <option>Reihenhaus</option>
+              <option>Sonstige</option>
+              <option>Souterrain</option>
+              <option>Terrassenwohnung</option>
+              <option>Unbekannt</option>
+              <option>Villa</option>
+              <option>Weitere Grundstücke & Gärten</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Preis</td>
+          <td>
+            <input type="text" style="width: 100px" value="" id="filter_min_price" onchange="reloadMarkers();" />
+          </td>
+          <td>
+            -
+          </td>
+          <td>
+            <input type="text" style="width: 100px" value="" id="filter_max_price" onchange="reloadMarkers();" />
+          </td>
+        </tr>
+        <tr>
+          <td>Preis/m2 (Wohnfläche)</td>
+          <td>
+            <input type="text" style="width: 100px" value="" id="filter_min_price_qm_wohnflaeche" onchange="reloadMarkers();" />
+          </td>
+          <td>
+            -
+          </td>
+          <td>
+            <input type="text" style="width: 100px" value="" id="filter_max_price_qm_wohnflaeche" onchange="reloadMarkers();" />
+          </td>
+        </tr>
+        <tr>
+          <td>Wohnfläche</td>
+          <td>
+            <input type="text" style="width: 100px" value="" id="filter_min_qm" onchange="reloadMarkers();" />
+          </td>
+          <td>
+            -
+          </td>
+          <td>
+            <input type="text" style="width: 100px" value="" id="filter_max_qm" onchange="reloadMarkers();" />
+          </td>
+        </tr>
+        <tr>
+          <td>Zimmer</td>
+          <td>
+            <input type="text" style="width: 100px" value="" id="filter_min_zimmer" onchange="reloadMarkers();" />
+          </td>
+          <td>
+            -
+          </td>
+          <td>
+            <input type="text" style="width: 100px" value="" id="filter_max_zimmer" onchange="reloadMarkers();" />
+          </td>
+        </tr>
+      </table>
+
+      <br/>
+      <a href="javascript:reloadMarkers();">Apply filters</a><br/>
+      <a href="javascript:clearFilter();">Clear filters</a><br/>
+      <a href="javascript:ignoreAllResults();">Ignore all results</a><br/>
+      <a href="javascript:undoIgnore();">Undo ignore</a>
+    </div>
+
+    <div id="ad"></div>
+
+    <script type="text/javascript">
+      mapAjaxRequest = new XMLHttpRequest();
+      adAjaxRequest = new XMLHttpRequest();
+      markers = [];
+
+      var greyMarkerIcon = L.icon({
+        iconUrl: 'marker-grey.png',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        popupAnchor: [-1, -1]
+      });
+
+      var blueMarkerIcon = L.icon({
+        iconUrl: 'marker-blue.png',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        popupAnchor: [-1, -1]
+      });
+
+      var greenMarkerIcon = L.icon({
+        iconUrl: 'marker-green.png',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        popupAnchor: [-1, -1]
+      });
+
+      var greenMarkerIcon = L.icon({
+        iconUrl: 'marker-green.png',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        popupAnchor: [-1, -1]
+      });
+
+      var redMarkerIcon = L.icon({
+        iconUrl: 'marker-red.png',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        popupAnchor: [-1, -1]
+      });
+
+      function requestPlots(e) {
+        var bounds=map.getBounds();
+        var minll=bounds.getSouthWest();
+        var maxll=bounds.getNorthEast();
+
+        var msg = '/api/ads?q[lon_gteq]=' + minll.lng;
+        msg = msg + '&q[lon_lteq]=' + maxll.lng;
+        msg = msg + '&q[lat_gteq]=' + minll.lat;
+        msg = msg + '&q[lat_lteq]=' + maxll.lat;
+
+        msg = msg + '&q[category_eq]=' + document.getElementById("filter_type").value;
+        msg = msg + '&q[sub_category_eq]=' + document.getElementById("filter_sub_type").value;
+        msg = msg + '&q[price_lteq]=' + document.getElementById("filter_max_price").value;
+        msg = msg + '&q[price_gteq]=' + document.getElementById("filter_min_price").value;
+        msg = msg + '&q[price_per_sqm_flat_lteq]=' + document.getElementById("filter_max_price_qm_wohnflaeche").value;
+        msg = msg + '&q[price_per_sqm_flat_gteq]=' + document.getElementById("filter_min_price_qm_wohnflaeche").value;
+        msg = msg + '&q[rooms_count_lteq]=' + document.getElementById("filter_max_zimmer").value;
+        msg = msg + '&q[rooms_count_gteq]=' + document.getElementById("filter_min_zimmer").value;
+        msg = msg + '&q[flat_sqm_lteq]=' + document.getElementById("filter_max_qm").value;
+        msg = msg + '&q[flat_sqm_gteq]=' + document.getElementById("filter_min_qm").value;
+
+        mapAjaxRequest.onreadystatechange = renderPlots;
+        mapAjaxRequest.open('GET', msg, true);
+        mapAjaxRequest.setRequestHeader("Authorization", "Basic " + btoa("ay6g9z2tc2onwufcpyyaofoibbc7k43v3isrpg:efghsxwjepm5g3r5uon77b5jmmq5p9ptsu5xib"));
+        mapAjaxRequest.send(null);
+      }
+
+      function renderPlots() {
+        if (mapAjaxRequest.readyState!=4) return;
+        if (mapAjaxRequest.status!=200) return;
+        result = eval("(" + mapAjaxRequest.responseText + ")").result;
+
+        //remove markers
+        for(i=0;i<markers.length;i++) {
+          markers[i].remove();
+        }
+        markers = [];
+
+        //add markers
+        for(i=0;i<result.length;i++) {
+          var e = result[i];
+          var age_in_hours = (new Date() - new Date(e.published_at)) / (1000 * 60 * 60)
+
+          if(e.is_favorite) {
+            icon = redMarkerIcon;
+          // } else if(e.new) {
+          //   icon = blueMarkerIcon
+          } else if(age_in_hours <= 24) {
+            icon = greenMarkerIcon
+          } else {
+            icon = greyMarkerIcon;
+          }
+
+          marker = L.marker([e.lat, e.lon], {icon: icon});
+          marker.data = e;
+          marker.addTo(map);
+          marker.on('click', selectMarker);
+          markers.push(marker);
+        }
+      }
+
+      function selectMarker(e) {
+        loadAd(e.target.data.platform, e.target.data.platform_key);
+      }
+
+      function loadAd(platform, platform_key) {
+        adAjaxRequest.onreadystatechange = renderAd;
+        adAjaxRequest.open('GET', '/api/ads/' + platform + '/' + platform_key + '.html', true);
+        adAjaxRequest.setRequestHeader("Authorization", "Basic " + btoa("ay6g9z2tc2onwufcpyyaofoibbc7k43v3isrpg:efghsxwjepm5g3r5uon77b5jmmq5p9ptsu5xib"));
+        adAjaxRequest.send(null);
+      }
+
+      function clearAd() {
+        node = document.getElementById("ad");
+        while (node.firstChild) {
+          node.removeChild(node.firstChild);
+        }
+      }
+
+      function renderAd() {
+        if (adAjaxRequest.readyState!=4) return;
+        if (adAjaxRequest.status!=200) return;
+        clearAd();
+
+        //add new content
+        node = document.getElementById("ad");
+        node.innerHTML = adAjaxRequest.responseText
+      }
+
+      function ignoreAd(platform, platform_key) {
+        postAndReload(platform, platform_key, 'ignore', reloadMarkers);
+      }
+
+      function markAd(platform, platform_key) {
+        postAndReload(platform, platform_key, 'mark', reloadAdAndMarkers);
+      }
+
+      function unmarkAd(platform, platform_key) {
+        postAndReload(platform, platform_key, 'unmark', reloadAdAndMarkers);
+      }
+
+      function postAndReload(platform, platform_key, action, callbackFunction) {
+        localRequest = new XMLHttpRequest();
+        localRequest.onreadystatechange = callbackFunction;
+        localRequest.open('PUT', '/api/ads/' + platform + '/' + platform_key + '/' + action, true);
+        localRequest.setRequestHeader("Authorization", "Basic " + btoa("ay6g9z2tc2onwufcpyyaofoibbc7k43v3isrpg:efghsxwjepm5g3r5uon77b5jmmq5p9ptsu5xib"));
+        localRequest.send(null);
+      }
+
+      function undoIgnore() {
+        localRequest = new XMLHttpRequest();
+        localRequest.onreadystatechange = reloadMarkers;
+        localRequest.open('POST', '/api/undo/ignore');
+        localRequest.setRequestHeader("Authorization", "Basic " + btoa("ay6g9z2tc2onwufcpyyaofoibbc7k43v3isrpg:efghsxwjepm5g3r5uon77b5jmmq5p9ptsu5xib"));
+        localRequest.send(null);
+      }
+
+      function reloadMarkers() {
+        clearAd();
+        map.fire('moveend');
+      }
+
+      function clearFilter() {
+        document.getElementById("filter_type").options[0].selected = true
+        document.getElementById("filter_sub_type").options[0].selected = true
+        document.getElementById("filter_min_price").value = "";
+        document.getElementById("filter_max_price").value = "";
+        document.getElementById("filter_min_price_qm_wohnflaeche").value = "";
+        document.getElementById("filter_max_price_qm_wohnflaeche").value = "";
+        document.getElementById("filter_min_zimmer").value = "";
+        document.getElementById("filter_max_zimmer").value = "";
+        document.getElementById("filter_min_qm").value = "";
+        document.getElementById("filter_max_qm").value = "";
+        reloadMarkers();
+      }
+
+      function ignoreAllResults() {
+        // if (document.getElementById("filter_type").value == "") return;
+
+        msg = '/api/ads/ignore'
+        msg = msg + '?q[category_eq]=' + document.getElementById("filter_type").value;
+        msg = msg + '&q[sub_category_eq]=' + document.getElementById("filter_sub_type").value;
+        msg = msg + '&q[price_lteq]=' + document.getElementById("filter_max_price").value;
+        msg = msg + '&q[price_gteq]=' + document.getElementById("filter_min_price").value;
+        msg = msg + '&q[price_per_sqm_flat_lteq]=' + document.getElementById("filter_max_price_qm_wohnflaeche").value;
+        msg = msg + '&q[price_per_sqm_flat_gteq]=' + document.getElementById("filter_min_price_qm_wohnflaeche").value;
+        msg = msg + '&q[rooms_count_lteq]=' + document.getElementById("filter_max_zimmer").value;
+        msg = msg + '&q[rooms_count_gteq]=' + document.getElementById("filter_min_zimmer").value;
+        msg = msg + '&q[flat_sqm_lteq]=' + document.getElementById("filter_max_qm").value;
+        msg = msg + '&q[flat_sqm_gteq]=' + document.getElementById("filter_min_qm").value;
+
+        mapAjaxRequest.open('PUT', msg, true);
+        mapAjaxRequest.setRequestHeader("Authorization", "Basic " + btoa("ay6g9z2tc2onwufcpyyaofoibbc7k43v3isrpg:efghsxwjepm5g3r5uon77b5jmmq5p9ptsu5xib"));
+        mapAjaxRequest.onreadystatechange = clearFilter;
+        mapAjaxRequest.send(null);
+      }
+
+      function reloadAdAndMarkers() {
+        loadAd(document.getElementById('platform').value, document.getElementById('platform_key').value);
+        map.fire('moveend');
+      }
+
+      // set up the map
+      var map = new L.Map('map', {
+                            center: [52.516667, 13.388889],
+                            zoom: 14
+                          });
+
+      // create the tile layer with correct attribution
+      var osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      var osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
+      var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 20, attribution: osmAttrib});
+      map.addLayer(osm);
+
+      // mapnificent layers
+      var ostkreuz30min = L.imageOverlay('ostkreuz30min.png', [[52.6381, 13.1932], [52.3274, 14.0979]]);
+      var ostkreuz40min = L.imageOverlay('ostkreuz40min.png', [[52.8144, 12.7462], [52.1461, 14.5974]]);
+      var ostkreuz50min = L.imageOverlay('ostkreuz50min.png', [[52.8144, 12.7462], [52.1461, 14.5974]]);
+      var ostkreuz60min = L.imageOverlay('ostkreuz60min.png', [[53.1525, 12.1413], [51.8044, 15.2010]]);
+
+      // SBahn tiles
+      // http://baumgardt-maps.de/bcmap/wmts/sbahn_basis/GLOBAL_WEBMERCATOR/12/2198/1342.png
+      var sbahnUrl='http://baumgardt-maps.de/bcmap/wmts/sbahn_basis/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png';
+      var sbahnAttrib='Kartografie und Gestaltung: © Baumgardt Consultants GbRKartendaten: © OpenStreetMap contributors';
+      var sbahn = new L.TileLayer(sbahnUrl, {minZoom: 8, maxZoom: 15, attribution: sbahnAttrib});
+
+      // Boroughs
+      var berlinBezirke = L.imageOverlay('berlin-bezirke.jpg', [[52.6867, 13.0679], [52.3261, 13.7808]]);
+
+      // add layer control
+      var baseMaps = {
+        "OpenStreetMap": osm,
+        "ÖPNV Liniennetz": sbahn,
+        "Ostkreuz/30 Minuten": ostkreuz30min,
+        "Ostkreuz/40 Minuten": ostkreuz40min,
+        "Ostkreuz/50 Minuten": ostkreuz50min,
+        "Ostkreuz/60 Minuten": ostkreuz60min
+      };
+      var overlayMaps = {
+        "Berliner Bezirke": berlinBezirke
+      };
+      L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+      // show scale bar
+      var scale = L.control.scale();
+      map.addControl(scale);
+
+      // trigger loading of markers
+      requestPlots(null);
+      map.on('moveend', requestPlots);
+
+    </script>
+  </body>
+</html>

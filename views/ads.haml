@@ -1,0 +1,95 @@
+%p
+  / input element with adid when we need to reload the ad
+  %input{type: 'hidden', id: 'platform', value: ad.platform}
+  %input{type: 'hidden', id: 'platform_key', value: ad.platform_key}
+
+  %a{accesskey: 'l', href: ad.url, target: 'ek'} Link
+  |
+  %a{accesskey: 'x', href: "javascript:ignoreAd('#{ad.platform}', #{ad.platform_key});"} Ignore
+  |
+  - if ad.is_favorite
+    %a{accesskey: 'm', href: "javascript:unmarkAd('#{ad.platform}',#{ad.platform_key});"} Unmark
+  - else
+    %a{accesskey: 'm', href: "javascript:markAd('#{ad.platform}', #{ad.platform_key});"} Mark
+
+%br
+
+%table
+  %tr
+    %th ADID
+    %td{colspan: 2}= ad.platform_key
+
+  %tr
+    %th Kategorie
+    %td{colspan: 2}= ad.category
+
+  %tr
+    %th Unterkategorie
+    %td.highlight{colspan: 2}= ad.sub_category
+
+  %tr
+    %th PLZ
+    %td{colspan: 2}= ad.postcode
+
+  %tr
+    %th Erstellungsdatum
+    %td{colspan: 2}= ad.published_at
+
+  %tr
+    %th Preis
+    %td.highlight{colspan: 2}= ad.price.to_s.reverse.gsub(/...(?=.)/, '\&.').reverse + ' EUR'
+
+  %tr
+    %th Provision?
+    %td{colspan: 2}= ad.has_commission ? 'Ja' : 'Nein'
+
+  %tr
+    %th Baujahr
+    %td{colspan: 2}= ad.year
+
+  - if ad.flat_sqm
+    %tr
+      %th Wohnfläche
+      %td
+        = ad.flat_sqm
+        = ' qm'
+      %td.dimmed
+        - if ad.price_per_sqm_flat
+          = ' => '
+          = ad.price_per_sqm_flat.to_s.reverse.gsub(/...(?=.)/, '\&.').reverse
+          EUR/qm
+
+  - if ad.property_sqm
+    %tr
+      %th flaeche
+      %td
+        = ad.property_sqm
+        = ' qm'
+      %td.dimmed
+        - if ad.price_per_sqm_property
+          = ' => '
+          = ad.price_per_sqm_property.to_s.reverse.gsub(/...(?=.)/, '\&.').reverse
+          EUR/qm
+
+  - if ad.rooms_count
+    %tr
+      %th Zimmer
+      %td= ad.rooms_count
+      %td.dimmed
+        - if true || ad.price_per_room
+          = ' => '
+          = ad.price_per_room.to_s.reverse.gsub(/...(?=.)/, '\&.').reverse
+          EUR/Zimmer
+
+  - if ad.floor
+    %tr
+      %th Etage
+      %td{colspan: 2}= ad.floor
+
+  - if ad.hausgeld
+    %tr
+      %th Hausgeld
+      %td{colspan: 2}
+        = ad.hausgeld
+        EUR
+
