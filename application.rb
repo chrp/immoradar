@@ -1,19 +1,31 @@
-require 'digest'
+ENVIRONMENT = ENV['RACK_ENV'] || ENV['ENV'] || 'development'
+
+if ENVIRONMENT == 'development'
+  puts 'Loading .env'
+  require 'dotenv'
+  Dotenv.load
+end
+
 require 'sinatra'
+
+set :environment, ENVIRONMENT
+
 require "sinatra/protection"
 require 'sinatra/activerecord'
+require 'rack/contrib/json_body_parser'
 require 'ransack'
-require 'rack/contrib/post_body_content_type_parser'
 require 'haml'
 require 'pry' if development?
-require './models'
 
-# parses JSON post bodies into params
-use Rack::PostBodyContentTypeParser
+# Load models
+Dir.glob("./models/*.rb").sort.each { |file| require file }
 
-# basic auth
-set :username, "ay6g9z2tc2onwufcpyyaofoibbc7k43v3isrpg"
-set :password, "efghsxwjepm5g3r5uon77b5jmmq5p9ptsu5xib"
+# Parses JSON post bodies into params
+use Rack::JSONBodyParser
+
+# Basic auth
+set :username, ENV['API_USERNAME']
+set :password, ENV['API_PASSWORD']
 
 class AppError < RuntimeError; end
 
@@ -21,7 +33,6 @@ configure do
   disable :raise_errors
   set :show_exceptions, :after_handler
 end
-
 
 get '/' do
   send_file File.expand_path('index.html', settings.public_dir)
@@ -150,6 +161,6 @@ namespace '/api' do
   end
 end
 
-# not_found do
-#   redirect 'http://http.cat/404'
-# end
+not_found do
+  redirect 'http://http.cat/404'
+end

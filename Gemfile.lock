@@ -14,6 +14,7 @@ GEM
       zeitwerk (~> 2.3)
     coderay (1.1.3)
     concurrent-ruby (1.1.9)
+    dotenv (2.7.6)
     haml (5.2.2)
       temple (>= 0.8.0)
       tilt
@@ -27,14 +28,12 @@ GEM
     multi_json (1.15.0)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
-    mysql2 (0.5.3)
     open4 (1.3.4)
+    pg (1.2.3)
     pry (0.14.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
     rack (2.2.3)
-    rack-contrib (2.3.0)
-      rack (~> 2.0)
     rack-protection (2.1.0)
       rack
     rake (13.0.6)
@@ -71,16 +70,17 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord
+  dotenv
   haml
   mina
-  mysql2
+  pg
   pry
-  rack-contrib
   ransack
   sequel
   sinatra
   sinatra-activerecord
+  sinatra-contrib
   sinatra-protection
 
 BUNDLED WITH
-   2.1.4
+   2.2.3

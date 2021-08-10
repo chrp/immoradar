@@ -5,13 +5,14 @@ gem 'activerecord'
 gem 'ransack'
 gem 'sinatra-activerecord'
 gem 'sinatra-protection'
-gem 'rack-contrib'
+gem 'sinatra-contrib'
+gem 'rake'
 gem 'haml'
 
-gem 'sequel'
-gem 'mysql2'
+gem 'pg'
 
 group :development do
   gem 'pry'
   gem 'mina'
+  gem 'dotenv'
 end
