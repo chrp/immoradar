@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+ruby IO.read(".ruby-version")
+
 gem 'sinatra'
 gem 'activerecord'
 gem 'ransack'
