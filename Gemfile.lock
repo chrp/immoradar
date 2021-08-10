@@ -42,7 +42,6 @@ GEM
       activesupport (>= 5.2.4)
       i18n
     ruby2_keywords (0.0.5)
-    sequel (5.47.0)
     sinatra (2.1.0)
       mustermann (~> 1.0)
       rack (~> 2.2)
@@ -75,8 +74,8 @@ DEPENDENCIES
   mina
   pg
   pry
+  rake
   ransack
-  sequel
   sinatra
   sinatra-activerecord
   sinatra-contrib
