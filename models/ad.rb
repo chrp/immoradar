@@ -1,14 +1,3 @@
-require 'active_record'
-
-ActiveRecord::Base.establish_connection(
-  adapter: 'mysql2',
-  username: 'root',
-  password: '7nmsCf3ztqDW9xFm9QyE5HfWk42QkBxKRmhNqb4f29w1quY2',
-  host: '127.0.0.1',
-  port: '3306',
-  database: 'immoscraper2'
-)
-
 # t.string :platform, null: false
 # t.string :platform_id, null: false
 # t.text :url, null: false
