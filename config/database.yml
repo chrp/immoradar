@@ -1,0 +1,26 @@
+# Loading the database happens automatically, see sinatra-activerecord's README:
+#
+# > If you have a config/database.yml, it will automatically be loaded, no need to specify it.
+# > Also, in production, the $DATABASE_URL environment variable will automatically be read as
+# > the database (if you haven't specified otherwise).
+#
+# >  If both config/database.yml and $DATABASE_URL are present, the database configuration of this
+# >  two will be merged, with $DATABASE_URL's variable taking precedence over database.yml
+# >  (for the same variable / key).
+
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("MAX_THREADS") { 5 } %>
+  timeout: 5000
+  user: <%= ENV['DATABASE_USER'] %>
+  password: <%= ENV['DATABASE_PASSWORD'] %>
+
+development:
+  database: immoradar_dev
+  <<: *default
+
+production:
+  <<: *default
+  database: immoradar_prod
+  username: <%= ENV['DATABASE_USER'] || 'immoradar' %>
