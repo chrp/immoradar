@@ -8,6 +8,7 @@ gem 'ransack'
 gem 'sinatra-activerecord'
 gem 'sinatra-protection'
 gem 'sinatra-contrib'
+gem 'rack-contrib'
 gem 'rake'
 gem 'haml'
 
