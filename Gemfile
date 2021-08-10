@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 ruby IO.read(".ruby-version")
 
+gem 'puma'
 gem 'sinatra'
 gem 'activerecord'
 gem 'ransack'
