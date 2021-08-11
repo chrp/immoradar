@@ -20,5 +20,4 @@ development:
   database: immoradar_dev
   <<: *default
 
-production:
-
+# production config is provided in $DATABASE_URL on Heroku
