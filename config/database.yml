@@ -20,4 +20,6 @@ development:
   database: immoradar_dev
   <<: *default
 
-# production config is provided in $DATABASE_URL on Heroku
+production:
+  adapter: postgresql
+  # $DATABASE_URL is provided by heroku
