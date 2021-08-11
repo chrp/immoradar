@@ -48,7 +48,7 @@ namespace '/api' do
     { result: 'pong', errors: nil, successful: true }.to_json
   end
 
-  get '/ads/:platform/:platform_key(.:format)?' do
+  get '/entries/:platform/:platform_key(.:format)?' do
     ad = Ad.find_by(platform: params[:platform], platform_key: params[:platform_key])
 
     if ad.nil?
@@ -69,7 +69,7 @@ namespace '/api' do
       errors: nil }.to_json
   end
 
-  get '/ads' do
+  get '/entries' do
     limit = Integer(params[:limit]) rescue 1000 # default 1000
     limit = [limit, 10000].min # max 10000
     collection = Ad.ransack(params[:q]).result.where.not(is_ignored: 1).order('id DESC')
@@ -80,14 +80,14 @@ namespace '/api' do
       errors: nil }.to_json
   end
 
-  put '/ads/ignore' do
+  put '/entries/ignore' do
     count = Ad.ransack(params[:q]).result.update_all(is_ignored: 1)
     { affected_count: count,
       successful: true,
       errors: nil }.to_json
   end
 
-  post '/ads' do
+  post '/entries' do
     # We need a data key
     raise AppError.new('Missing data key')  unless params[:data].is_a? Array
 
@@ -117,7 +117,7 @@ namespace '/api' do
     { result: result, successful: true, errors: nil }.to_json
   end
 
-  put '/ads/:platform/:platform_key/:action' do
+  put '/entries/:platform/:platform_key/:action' do
     ad = Ad.find_by(platform: params[:platform], platform_key: params[:platform_key])
 
     if ad.nil?

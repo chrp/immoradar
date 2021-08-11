@@ -208,7 +208,7 @@
         var minll=bounds.getSouthWest();
         var maxll=bounds.getNorthEast();
 
-        var msg = '/api/ads?q[lon_gteq]=' + minll.lng;
+        var msg = '/api/entries?q[lon_gteq]=' + minll.lng;
         msg = msg + '&q[lon_lteq]=' + maxll.lng;
         msg = msg + '&q[lat_gteq]=' + minll.lat;
         msg = msg + '&q[lat_lteq]=' + maxll.lat;
@@ -270,7 +270,7 @@
 
       function loadAd(platform, platform_key) {
         adAjaxRequest.onreadystatechange = renderAd;
-        adAjaxRequest.open('GET', '/api/ads/' + platform + '/' + platform_key + '.html', true);
+        adAjaxRequest.open('GET', '/api/entries/' + platform + '/' + platform_key + '.html', true);
         adAjaxRequest.setRequestHeader("Authorization", "Basic " + btoa("ay6g9z2tc2onwufcpyyaofoibbc7k43v3isrpg:efghsxwjepm5g3r5uon77b5jmmq5p9ptsu5xib"));
         adAjaxRequest.send(null);
       }
@@ -307,7 +307,7 @@
       function postAndReload(platform, platform_key, action, callbackFunction) {
         localRequest = new XMLHttpRequest();
         localRequest.onreadystatechange = callbackFunction;
-        localRequest.open('PUT', '/api/ads/' + platform + '/' + platform_key + '/' + action, true);
+        localRequest.open('PUT', '/api/entries/' + platform + '/' + platform_key + '/' + action, true);
         localRequest.setRequestHeader("Authorization", "Basic " + btoa("ay6g9z2tc2onwufcpyyaofoibbc7k43v3isrpg:efghsxwjepm5g3r5uon77b5jmmq5p9ptsu5xib"));
         localRequest.send(null);
       }
@@ -342,7 +342,7 @@
       function ignoreAllResults() {
         // if (document.getElementById("filter_type").value == "") return;
 
-        msg = '/api/ads/ignore'
+        msg = '/api/entries/ignore'
         msg = msg + '?q[category_eq]=' + document.getElementById("filter_type").value;
         msg = msg + '&q[sub_category_eq]=' + document.getElementById("filter_sub_type").value;
         msg = msg + '&q[price_lteq]=' + document.getElementById("filter_max_price").value;
