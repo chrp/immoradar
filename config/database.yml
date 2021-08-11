@@ -21,6 +21,8 @@ development:
   <<: *default
 
 production:
-  <<: *default
-  database: immoradar_prod
-  username: <%= ENV['DATABASE_USER'] || 'immoradar' %>
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("MAX_THREADS") { 5 } %>
+  timeout: 5000
+  url: <%= ENV('DATABASE_URL') %>
