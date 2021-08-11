@@ -21,8 +21,4 @@ development:
   <<: *default
 
 production:
-  adapter: postgresql
-  encoding: unicode
-  pool: <%= ENV.fetch("MAX_THREADS") { 5 } %>
-  timeout: 5000
-  url: <%= ENV('DATABASE_URL') %>
+
