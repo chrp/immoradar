@@ -383,6 +383,12 @@
       var ostkreuz50min = L.imageOverlay('ostkreuz50min.png', [[52.8144, 12.7462], [52.1461, 14.5974]]);
       var ostkreuz60min = L.imageOverlay('ostkreuz60min.png', [[53.1525, 12.1413], [51.8044, 15.2010]]);
 
+      // Fluglärm BER
+      var berOstbetrieb  = L.imageOverlay('ber-ostbetrieb.png', [[52.7018, 12.637], [52.0301, 14.5979]]);
+      var berWestbetrieb = L.imageOverlay('ber-westbetrieb.png', [[52.7018, 12.637], [52.0301, 14.5979]]);
+      berOstbetrieb.setStyle({ opacity: 0.65});
+      berWestbetrieb.setStyle({ opacity: 0.65});
+
       // SBahn tiles
       // http://baumgardt-maps.de/bcmap/wmts/sbahn_basis/GLOBAL_WEBMERCATOR/12/2198/1342.png
       var sbahnUrl='http://baumgardt-maps.de/bcmap/wmts/sbahn_basis/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png';
@@ -402,7 +408,9 @@
         "Ostkreuz/60 Minuten": ostkreuz60min
       };
       var overlayMaps = {
-        "Berliner Bezirke": berlinBezirke
+        "Berliner Bezirke": berlinBezirke,
+        "BER Ostbetrieb": berOstbetrieb,
+        "BER Westbetrieb": berWestbetrieb,
       };
       L.control.layers(baseMaps, overlayMaps).addTo(map);
 
