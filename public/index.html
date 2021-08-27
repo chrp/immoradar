@@ -248,10 +248,10 @@
 
           if(e.is_favorite) {
             icon = redMarkerIcon;
-          // } else if(e.new) {
-          //   icon = blueMarkerIcon
+          } else if(e.is_suggested) {
+            icon = blueMarkerIcon;
           } else if(age_in_hours <= 24) {
-            icon = greenMarkerIcon
+            icon = greenMarkerIcon;
           } else {
             icon = greyMarkerIcon;
           }
