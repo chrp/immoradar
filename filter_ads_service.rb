@@ -10,7 +10,7 @@ class FilterAdsService
   private
 
   def filter collection
-    collection.where(is_suggested: false).update(is_ignored: 1)
+    collection.where(is_suggested: false).update_all(is_ignored: 1)
   end
 
   def flats_not_in_berlin
