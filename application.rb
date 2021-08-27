@@ -20,6 +20,9 @@ require 'pry' if development?
 # Load models
 Dir.glob("./models/*.rb").sort.each { |file| require file }
 
+require './suggest_ads_service'
+require './filter_ads_service'
+
 # Parses JSON post bodies into params
 use Rack::JSONBodyParser
 
@@ -67,6 +70,12 @@ namespace '/api' do
     { affected_count: ad ? 1 : 0,
       successful: true,
       errors: nil }.to_json
+  end
+
+  post '/suggest_and_filter' do
+    SuggestAdsService.new.call
+    FilterAdsService.new.call
+    { successful: true, errors: nil }.to_json
   end
 
   get '/entries' do

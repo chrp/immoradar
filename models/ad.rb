@@ -39,6 +39,18 @@ class Ad < ActiveRecord::Base
   validates :rooms_count, numericality: true, allow_nil: true
   validates :floor, numericality: true, allow_nil: true
 
+  scope :flats, -> { where(category: 'Eigentumswohnungen') }
+  scope :properties, -> { where(sub_category: 'Grundstücke & Gärten') }
+  scope :buildings, -> { where(sub_category: 'Häuser zum Kauf') }
+  scope :in_berlin, -> { where("SUBSTR(postcode, 1, 2) IN ('10', '11', '12', '13')") }
+  scope :not_in_berlin, -> { where("SUBSTR(postcode, 1, 2) NOT IN ('10', '11', '12', '13')") }
+  scope :with_price_between, ->(min, max) { where("price BETWEEN ? AND ? OR price IS NULL", min, max) }
+  scope :with_flat_sqm_between, ->(min, max) { where("flat_sqm BETWEEN ? AND ? OR flat_sqm IS NULL", min, max) }
+  scope :with_prop_sqm_between, ->(min, max) { where("property_sqm BETWEEN ? AND ? OR property_sqm IS NULL", min, max) }
+  scope :with_rooms_between, ->(min, max) { where("rooms_count BETWEEN ? AND ? OR rooms_count IS NULL", min, max) }
+  scope :with_price_per_room_between, ->(min, max) { where("price_per_room BETWEEN ? AND ? OR price_per_room IS NULL", min, max) }
+  scope :with_price_per_sqm_prop, -> (min, max) { where("price_per_sqm_property BETWEEN ? AND ? OR price_per_sqm_property IS NULL", min, max) }
+
   before_save do
     self.url_md5 = Digest::MD5.hexdigest(url)
     self.published_at ||= Time.now
