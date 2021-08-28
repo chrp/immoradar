@@ -21,10 +21,10 @@
 
   %tr
     %th Anbieter
-    %td= ad.seller_name
-    %td.dimmed
+    %td{colspan: 2}
+      = ad.seller_name
       - if ad.seller_is_commercial === false
-        (Privat)
+        %span.dimmed (Privat)
 
   %tr
     %th Kategorie
