@@ -5,6 +5,7 @@
 # t.float :lon, null: false
 # t.boolean :is_ignored, null: false, default: false
 # t.boolean :is_favorite, null: false, default: false
+# t.bollean :is_suggested, default: false
 
 # t.string :postcode
 # t.string :category
@@ -17,6 +18,9 @@
 # t.integer :property_sqm
 # t.integer :rooms_count
 # t.integer :floor
+
+# t.string :seller_name
+# t.boolean :seller_is_commercial
 
 # t.integer :price_per_sqm_flat
 # t.integer :price_per_sqm_property
