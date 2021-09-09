@@ -2,6 +2,7 @@ ENVIRONMENT = ENV['RACK_ENV'] || ENV['ENV'] || 'development'
 
 if ENVIRONMENT == 'development'
   puts 'Loading .env'
+  require 'pry'
   require 'dotenv'
   Dotenv.load
 end
@@ -15,7 +16,6 @@ require 'sinatra/activerecord'
 require 'rack/contrib/json_body_parser'
 require 'ransack'
 require 'haml'
-require 'pry' if development?
 
 # Load models
 Dir.glob("./models/*.rb").sort.each { |file| require file }
@@ -75,13 +75,27 @@ namespace '/api' do
   post '/suggest_and_filter' do
     SuggestAdsService.new.call
     FilterAdsService.new.call
-    { successful: true, errors: nil }.to_json
+
+    collection = Ad.where(notified_at: nil)
+                   .where(is_suggested: true)
+                   .where.not(is_ignored: 1)
+                   .order('id DESC')
+                   .limit(10)
+
+    response = { result: collection,
+      successful: true,
+      errors: nil }.to_json
+
+    collection.update_all(notified_at: Time.now) if collection.any? && params[:mark_as_notified]
+
+    response
   end
 
   get '/entries' do
     limit = Integer(params[:limit]) rescue 1000 # default 1000
     limit = [limit, 10000].min # max 10000
     collection = Ad.ransack(params[:q]).result.where.not(is_ignored: 1).order('id DESC')
+
     { unlimited_count: collection.count,
       applied_limit: limit,
       result: collection.limit(limit),
