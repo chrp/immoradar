@@ -5,6 +5,7 @@ class FilterAdsService
     filter(expensive_flats)
     filter(expensive_buildings)
     filter(expensive_properties)
+    filter(outdated_ads)
   end
 
   private
@@ -31,5 +32,9 @@ class FilterAdsService
 
   def expensive_properties
     Ad.properties.where('price > ?', 900_000)
+  end
+
+  def outdated_ads
+    Ad.where('published_at < ?', Time.now - 10 * 24 * 60 * 60).where(is_favorite: false)
   end
 end
