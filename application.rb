@@ -94,7 +94,7 @@ namespace '/api' do
   get '/entries' do
     limit = Integer(params[:limit]) rescue 1000 # default 1000
     limit = [limit, 10000].min # max 10000
-    collection = Ad.ransack(params[:q]).result.where.not(is_ignored: 1).order('id DESC')
+    collection = Ad.ransack(params[:q]).result.where.not(is_ignored: 1).order('id ASC')
 
     { unlimited_count: collection.count,
       applied_limit: limit,
