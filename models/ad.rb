@@ -5,7 +5,7 @@
 # t.float :lon, null: false
 # t.boolean :is_ignored, null: false, default: false
 # t.boolean :is_favorite, null: false, default: false
-# t.bollean :is_suggested, default: false
+# t.boolean :is_suggested, default: false
 
 # t.string :postcode
 # t.string :category
