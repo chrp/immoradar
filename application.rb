@@ -17,11 +17,9 @@ require 'rack/contrib/json_body_parser'
 require 'ransack'
 require 'haml'
 
-# Load models
+# Load models & services
 Dir.glob("./models/*.rb").sort.each { |file| require file }
-
-require './suggest_ads_service'
-require './filter_ads_service'
+Dir.glob("./services/*.rb").sort.each { |file| require file }
 
 # Parses JSON post bodies into params
 use Rack::JSONBodyParser
@@ -75,6 +73,7 @@ namespace '/api' do
   post '/suggest_and_filter' do
     SuggestAdsService.new.call
     FilterAdsService.new.call
+    NotifyWithTelegramService.new.call
 
     collection = Ad.where(notified_at: nil)
                    .where(is_suggested: true)
@@ -82,13 +81,9 @@ namespace '/api' do
                    .order('id DESC')
                    .limit(10)
 
-    response = { result: collection,
+    { result: collection,
       successful: true,
       errors: nil }.to_json
-
-    collection.update_all(notified_at: Time.now) if collection.any? && params[:mark_as_notified]
-
-    response
   end
 
   get '/entries' do

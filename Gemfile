@@ -12,8 +12,8 @@ gem 'sinatra-contrib'
 gem 'rack-contrib'
 gem 'rake'
 gem 'haml'
-
 gem 'pg'
+gem 'telegram-bot-ruby'
 
 group :development do
   gem 'pry'
