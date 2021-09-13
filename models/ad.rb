@@ -44,8 +44,8 @@ class Ad < ActiveRecord::Base
   validates :floor, numericality: true, allow_nil: true
 
   scope :flats, -> { where(category: 'Eigentumswohnungen') }
-  scope :properties, -> { where(sub_category: 'Grundstücke & Gärten') }
-  scope :buildings, -> { where(sub_category: 'Häuser zum Kauf') }
+  scope :properties, -> { where(category: 'Grundstücke & Gärten') }
+  scope :buildings, -> { where(category: 'Häuser zum Kauf') }
   scope :in_berlin, -> { where("SUBSTR(postcode, 1, 2) IN ('10', '11', '12', '13')") }
   scope :not_in_berlin, -> { where("SUBSTR(postcode, 1, 2) NOT IN ('10', '11', '12', '13')") }
   scope :with_price_between, ->(min, max) { where("price BETWEEN ? AND ? OR price IS NULL", min, max) }
