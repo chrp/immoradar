@@ -15,6 +15,7 @@ class FilterAdsService
     filter_unsuggested(expensive_properties)
     filter_unsuggested(outdated_ads)
     filter_all(blacklisted_sellers)
+    filter_all(agricultural_and_forestry)
   end
 
   private
@@ -49,6 +50,10 @@ class FilterAdsService
 
   def outdated_ads
     Ad.where('published_at < ?', Time.now - 10 * 24 * 60 * 60).where(is_favorite: false)
+  end
+
+  def agricultural_and_forestry
+    Ad.where(sub_category: 'Land-/Forstwirtschaft')
   end
 
   def blacklisted_sellers
