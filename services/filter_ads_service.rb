@@ -1,17 +1,30 @@
 class FilterAdsService
+
+  SELLER_NAME_BLACKLIST = [
+    'OKAL Haus Ost'
+    'LUKAS Massivhaus GmbH'
+    'Argetra GmbH'
+    'Jörg Groh'
+  ]
+
   def call
-    filter(flats_not_in_berlin)
-    filter(small_flats_in_berlin)
-    filter(expensive_flats)
-    filter(expensive_buildings)
-    filter(expensive_properties)
-    filter(outdated_ads)
+    filter_unsuggested(flats_not_in_berlin)
+    filter_unsuggested(small_flats_in_berlin)
+    filter_unsuggested(expensive_flats)
+    filter_unsuggested(expensive_buildings)
+    filter_unsuggested(expensive_properties)
+    filter_unsuggested(outdated_ads)
+    filter_all(blacklisted_sellers)
   end
 
   private
 
-  def filter collection
-    collection.where(is_suggested: false).update_all(is_ignored: 1)
+  def filter_unsuggested collection
+    collection.where(is_ignored: false).where(is_suggested: false).update_all(is_ignored: 1)
+  end
+
+  def filter_all collection
+    collection.where(is_ignored: false).update_all(is_ignored: 1)
   end
 
   def flats_not_in_berlin
@@ -36,5 +49,13 @@ class FilterAdsService
 
   def outdated_ads
     Ad.where('published_at < ?', Time.now - 10 * 24 * 60 * 60).where(is_favorite: false)
+  end
+
+  def blacklisted_sellers
+    clause = SELLER_NAME_BLACKLIST.map do |str|
+      "SUBSTR(seller_name, 1, #{str.length})='#{str}'"
+    end.join(' OR ')
+
+    Ad.where(clause)
   end
 end
