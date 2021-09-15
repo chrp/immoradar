@@ -1,9 +1,9 @@
 class FilterAdsService
 
   SELLER_NAME_BLACKLIST = [
-    'OKAL Haus Ost'
-    'LUKAS Massivhaus GmbH'
-    'Argetra GmbH'
+    'OKAL Haus Ost',
+    'LUKAS Massivhaus GmbH',
+    'Argetra GmbH',
     'Jörg Groh'
   ]
 
