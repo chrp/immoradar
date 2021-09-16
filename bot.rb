@@ -1,5 +1,7 @@
+require 'pry'
 require 'telegram/bot'
-require './telegram/chats'
+require 'sinatra/activerecord'
+require './models/telegram_chat'
 
 unless ENV['TELEGRAM_API_KEY']
   require 'dotenv/load'
@@ -7,7 +9,6 @@ unless ENV['TELEGRAM_API_KEY']
 end
 
 token = ENV['TELEGRAM_API_KEY']
-chats = Chats.instance
 
 # This part of the bot just handles subscriptions
 
@@ -17,11 +18,11 @@ Telegram::Bot::Client.run(token) do |bot|
     when '/start'
       puts "Added #{message.chat.id}"
       bot.api.send_message(chat_id: message.chat.id, text: "Hello, #{message.from.first_name}")
-      chats.add message.chat.id
+      TelegramChat.find_or_create_by(chat_id: message.chat.id)
     when '/stop'
       puts "Removed #{message.chat.id}"
       bot.api.send_message(chat_id: message.chat.id, text: "Bye, #{message.from.first_name}")
-      chats.remove message.chat.id
+      TelegramChat.find_by(chat_id: message.chat.id)&.destroy
     else
       puts "Unknown message in #{message.chat.id}: #{message.text}"
     end

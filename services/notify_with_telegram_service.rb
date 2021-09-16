@@ -1,5 +1,4 @@
 require 'telegram/bot'
-require './telegram/chats'
 
 unless ENV['TELEGRAM_API_KEY']
   require 'dotenv/load'
@@ -17,7 +16,7 @@ class NotifyWithTelegramService
     message = ads.map { |e| compose_message(e) }.join("\n\n")
 
     Telegram::Bot::Client.run(ENV['TELEGRAM_API_KEY']) do |bot|
-      chats.all.each do |chat_id|
+      TelegramChat.all.map(&:chat_id).each do |chat_id|
         bot.api.send_message(chat_id: chat_id, text: message)
       end
     end

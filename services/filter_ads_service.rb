@@ -16,6 +16,7 @@ class FilterAdsService
     filter_unsuggested(outdated_ads)
     filter_all(blacklisted_sellers)
     filter_all(agricultural_and_forestry)
+    filter_all(garden)
   end
 
   private
@@ -54,6 +55,10 @@ class FilterAdsService
 
   def agricultural_and_forestry
     Ad.where(sub_category: 'Land-/Forstwirtschaft')
+  end
+
+  def garden
+    Ad.where(sub_category: 'Garten')
   end
 
   def blacklisted_sellers

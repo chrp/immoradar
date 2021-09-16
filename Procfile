@@ -1,2 +1,2 @@
 web: bundle exec rackup config.ru -p $PORT
-telegram: bundle exec ruby telegram/bot.rb
+telegram: bundle exec ruby bot.rb
