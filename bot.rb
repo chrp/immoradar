@@ -1,4 +1,4 @@
-require 'pry'
+# require 'pry'
 require 'telegram/bot'
 require 'sinatra/activerecord'
 require './models/telegram_chat'
