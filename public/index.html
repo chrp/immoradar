@@ -388,8 +388,9 @@
       var sbahnAttrib='Kartografie und Gestaltung: © Baumgardt Consultants GbRKartendaten: © OpenStreetMap contributors';
       var sbahn = new L.TileLayer(sbahnUrl, {minZoom: 8, maxZoom: 15, attribution: sbahnAttrib});
 
-      // Boroughs
+      // Boroughs / postal zones
       var berlinBezirke = L.imageOverlay('berlin-bezirke.jpg', [[52.6867, 13.0679], [52.3261, 13.7808]]);
+      var plzBezirke = L.imageOverlay('plz.png', [[53.5590907, 11.2662278], [51.359064, 14.7658159]]);
 
       // add layer control
       var baseMaps = {
@@ -402,6 +403,7 @@
       };
       var overlayMaps = {
         "Berliner Bezirke": berlinBezirke,
+        "PLZ Bezirke": plzBezirke,
         "BER Ostbetrieb": berOstbetrieb,
         "BER Westbetrieb": berWestbetrieb,
       };
