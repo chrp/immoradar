@@ -14,6 +14,7 @@ gem 'rake'
 gem 'haml'
 gem 'pg'
 gem 'telegram-bot-ruby'
+gem "sinatra-cross_origin", "~> 0.4.0"
 
 group :development do
   gem 'pry'
@@ -21,4 +22,4 @@ group :development do
   gem 'dotenv'
 end
 
-gem "sinatra-cors", "~> 1.2"
+

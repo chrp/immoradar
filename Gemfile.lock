@@ -91,7 +91,7 @@ GEM
       rack-protection (= 2.1.0)
       sinatra (= 2.1.0)
       tilt (~> 2.0)
-    sinatra-cors (1.2.0)
+    sinatra-cross_origin (0.4.0)
     sinatra-protection (0.1.0)
       sinatra-contrib
     telegram-bot-ruby (0.16.0)
@@ -126,7 +126,7 @@ DEPENDENCIES
   sinatra
   sinatra-activerecord
   sinatra-contrib
-  sinatra-cors (~> 1.2)
+  sinatra-cross_origin (~> 0.4.0)
   sinatra-protection
   telegram-bot-ruby
 

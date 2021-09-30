@@ -13,7 +13,7 @@ set :environment, ENVIRONMENT
 
 require "sinatra/protection"
 require 'sinatra/activerecord'
-require "sinatra/cors"
+require 'sinatra/cross_origin'
 require 'rack/contrib/json_body_parser'
 require 'ransack'
 require 'haml'
@@ -28,14 +28,17 @@ use Rack::JSONBodyParser
 # Basic auth
 set :username, ENV['API_USERNAME']
 set :password, ENV['API_PASSWORD']
-set :allow_origin, "*"
+
+# CORS
+set :allow_origin, :any
+set :allow_methods, [:get, :post, :options]
 set :allow_credentials, true
-set :allow_methods, "GET,HEAD,POST"
-set :allow_headers, "content-type,if-modified-since"
+set :allow_credentials, true
 
 class AppError < RuntimeError; end
 
 configure do
+  enable :cross_origin
   disable :raise_errors
   set :show_exceptions, :after_handler
 end
@@ -44,10 +47,22 @@ get '/' do
   send_file File.expand_path('index.html', settings.public_dir)
 end
 
+# CORS Preflight
+
 namespace '/api' do
   before do
     content_type :json
-    protected!
+    protected! unless request.env['REQUEST_METHOD'] == 'OPTIONS'
+  end
+
+  after do
+    response.headers["Access-Control-Allow-Origin"] = "*"
+  end
+
+  options "*" do
+    response.headers["Allow"] = "HEAD,GET,PUT,POST,DELETE,OPTIONS"
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Access-Control-Allow-Origin, Authorization, X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
   end
 
   get '/ping' do
