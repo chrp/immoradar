@@ -13,6 +13,7 @@ set :environment, ENVIRONMENT
 
 require "sinatra/protection"
 require 'sinatra/activerecord'
+require "sinatra/cors"
 require 'rack/contrib/json_body_parser'
 require 'ransack'
 require 'haml'
@@ -27,6 +28,8 @@ use Rack::JSONBodyParser
 # Basic auth
 set :username, ENV['API_USERNAME']
 set :password, ENV['API_PASSWORD']
+set :allow_origin, "*"
+set :allow_credentials, true
 
 class AppError < RuntimeError; end
 

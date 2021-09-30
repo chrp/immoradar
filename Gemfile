@@ -20,3 +20,5 @@ group :development do
   gem 'mina'
   gem 'dotenv'
 end
+
+gem "sinatra-cors", "~> 1.2"
