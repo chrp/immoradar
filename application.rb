@@ -30,6 +30,8 @@ set :username, ENV['API_USERNAME']
 set :password, ENV['API_PASSWORD']
 set :allow_origin, "*"
 set :allow_credentials, true
+set :allow_methods, "GET,HEAD,POST"
+set :allow_headers, "content-type,if-modified-since"
 
 class AppError < RuntimeError; end
 
